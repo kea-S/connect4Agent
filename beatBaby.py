@@ -6,15 +6,13 @@ import numpy as np
 
 # Task 2.1: Defeat the Baby Agent
 
-
 class AIAgent(object):
     MOVE_NONE = -1
 
     """
     A class representing an agent that plays Connect Four.
     """
-    # something is fucking up here, its missing an argument
-    def evaluate(self, player, state):
+    def evaluate(player, state):
         max, min = 0, 0
         if player == 1:
             max, min = 1, 2
@@ -57,20 +55,22 @@ class AIAgent(object):
             10 * (threeCountMax - threeCountMin) +\
             (twoCountMax - twoCountMin)
 
-    def max_value(self, board, depth, max_depth, current_player, a, b):
+    def max_value(board, depth, max_depth, current_player, a, b):
         if depth >= max_depth:
-            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         if is_end(board):
-            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         v = tuple([float('-inf'), AIAgent.MOVE_NONE])
 
         generatedMoves = get_valid_col_id(board)
 
         for move in generatedMoves:
+            move = int(move)
+            # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
-            next = self.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
+            next = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
             if next[0] > v[0]:
                 v = tuple([next[0], move])
             a = max(a, v[0])
@@ -79,20 +79,22 @@ class AIAgent(object):
 
         return v
 
-    def min_value(self, board, depth, max_depth, current_player, a, b):
+    def min_value(board, depth, max_depth, current_player, a, b):
         if depth >= max_depth:
-            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         if is_end(board):
-            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         v = tuple([float('inf'), AIAgent.MOVE_NONE])
 
         generatedMoves = get_valid_col_id(board)
 
         for move in generatedMoves:
+            move = int(move)
+            # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
-            next = self.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
+            next = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
             if next[0] < v[0]:
                 v = tuple([next[0], move])
             a = min(b, v[0])
@@ -103,7 +105,6 @@ class AIAgent(object):
 
     # figure out how to trigger the right thing to start
     def minimax_alpha_beta(
-        self,
         board,
         depth,
         max_depth,
@@ -111,7 +112,7 @@ class AIAgent(object):
         beta,
         current_player
     ):
-        v = self.max_value(board, depth, max_depth, current_player, alpha, beta)
+        v = AIAgent.max_value(board, depth, max_depth, current_player, alpha, beta)
 
         return v
 
@@ -147,7 +148,7 @@ class AIAgent(object):
         if is_end(state):
             return
 
-        return self.minimax_alpha_beta(state, 0, 3, float('-inf'), float('inf'), self.player_id)
+        return AIAgent.minimax_alpha_beta(state, 0, 3, float('-inf'), float('inf'), self.player_id)
 
 
 agent1 = AIAgent(player_id=1)

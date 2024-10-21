@@ -84,6 +84,7 @@ def step(state, col_id, player_id, in_place=True):
         - If `col_id` is out of bounds (not between 0 and COLUMN_COUNT - 1).
         - If the specified column is already full (no available empty cell).
     """
+    print(col_id)
     if in_place:
         temp_board = state
     else:
