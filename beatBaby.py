@@ -9,10 +9,11 @@ import numpy as np
 
 class AIAgent(object):
     MOVE_NONE = -1
-    
+
     """
     A class representing an agent that plays Connect Four.
     """
+    # something is fucking up here, its missing an argument
     def evaluate(self, player, state):
         max, min = 0, 0
         if player == 1:
@@ -56,21 +57,20 @@ class AIAgent(object):
             10 * (threeCountMax - threeCountMin) +\
             (twoCountMax - twoCountMin)
 
-    # need replpace MOV_NONE with smth
     def max_value(self, board, depth, max_depth, current_player, a, b):
         if depth >= max_depth:
-            return tuple([AIAgent.evaluate(board), self.MOVE_NONE])
+            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         if is_end(board):
-            return tuple([AIAgent.evaluate(board), self.MOVE_NONE])
+            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
-        v = tuple([float('-inf'), self.MOVE_NONE])
+        v = tuple([float('-inf'), AIAgent.MOVE_NONE])
 
         generatedMoves = get_valid_col_id(board)
 
         for move in generatedMoves:
             nextBoard = step(board, move, current_player, False)
-            next = AIAgent.min_value(nextBoard, depth + 1, max_depth, current_player ^ 1, a, b)
+            next = self.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
             if next[0] > v[0]:
                 v = tuple([next[0], move])
             a = max(a, v[0])
@@ -81,41 +81,18 @@ class AIAgent(object):
 
     def min_value(self, board, depth, max_depth, current_player, a, b):
         if depth >= max_depth:
-            return tuple([AIAgent.evaluate(board), breakthrough.MOVE_NONE])
-
-        if breakthrough.is_game_over(board):
-            return tuple([AIAgent.evaluate(board), breakthrough.MOVE_NONE])
-
-        v = tuple([float('inf'), breakthrough.MOVE_NONE])
-
-        generatedMoves = get_valid_col_id(board)
-
-        for move in generatedMoves:
-            nextBoard = step(board, move, current_player, False)
-            # this bitwise NOR may be weird, idk python
-            next = AIAgent.max_value(nextBoard, depth + 1, max_depth, current_player ^ 1, a, b)
-            if next[0] < v[0]:
-                v = tuple([next[0], move])
-            b = min(b, v[0])
-            if v[0] <= a:
-                return v
-
-        return v
-
-    def min_value(self, board, depth, max_depth, current_player, a, b):
-        if depth >= max_depth:
-            return tuple([AIAgent.evaluate(board), self.MOVE_NONE])
+            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         if is_end(board):
-            return tuple([AIAgent.evaluate(board), self.MOVE_NONE])
+            return tuple([self.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
-        v = tuple([float('inf'), self.MOVE_NONE])
+        v = tuple([float('inf'), AIAgent.MOVE_NONE])
 
         generatedMoves = get_valid_col_id(board)
 
         for move in generatedMoves:
             nextBoard = step(board, move, current_player, False)
-            next = AIAgent.min_value(nextBoard, depth + 1, max_depth, current_player ^ 1, a, b)
+            next = self.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
             if next[0] < v[0]:
                 v = tuple([next[0], move])
             a = min(b, v[0])
@@ -126,6 +103,7 @@ class AIAgent(object):
 
     # figure out how to trigger the right thing to start
     def minimax_alpha_beta(
+        self,
         board,
         depth,
         max_depth,
@@ -133,13 +111,7 @@ class AIAgent(object):
         beta,
         current_player
     ):
-        def minOrMax(b, player, d):
-            if (current_player == 1):
-                return AIAgent.max_value(b, d, max_depth, player, alpha, beta)
-            else:
-                return AIAgent.min_value(b, d, max_depth, player, alpha, beta)
-
-        v = minOrMax(board, current_player, depth)
+        v = self.max_value(board, depth, max_depth, current_player, alpha, beta)
 
         return v
 
@@ -151,7 +123,7 @@ class AIAgent(object):
         player_id : int
             The ID of the player assigned to this agent (1 or 2).
         """
-        pass
+        self.player_id = player_id
 
     def make_move(self, state):
         """
@@ -171,11 +143,11 @@ class AIAgent(object):
         int
             The valid action, ie. a valid column index (col_id) where this agent chooses to drop its piece.
         """
+        # this is a bit iffy but I think it should be fine?
         if is_end(state):
             return
 
-        # figure out current player and stuff
-        return AIAgent.minimax_alpha_beta(state, 0, 4, float('-inf'), float('inf'), 1)
+        return self.minimax_alpha_beta(state, 0, 3, float('-inf'), float('inf'), self.player_id)
 
 
 agent1 = AIAgent(player_id=1)
