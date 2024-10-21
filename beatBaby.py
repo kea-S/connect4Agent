@@ -65,9 +65,10 @@ class AIAgent(object):
         v = tuple([float('-inf'), AIAgent.MOVE_NONE])
 
         generatedMoves = get_valid_col_id(board)
+        print(generatedMoves)
 
         for move in generatedMoves:
-            move = int(move)
+            print("move" + str(move))
             # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
             next = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
@@ -89,9 +90,10 @@ class AIAgent(object):
         v = tuple([float('inf'), AIAgent.MOVE_NONE])
 
         generatedMoves = get_valid_col_id(board)
+        print(generatedMoves)
 
         for move in generatedMoves:
-            move = int(move)
+            print("move" + str(move))
             # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
             next = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
