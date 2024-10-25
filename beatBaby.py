@@ -1,4 +1,4 @@
-from game_utils import initialize, step, get_valid_col_id, is_end, is_win
+from game_utils import initialize, step, get_valid_col_id, is_end, is_win, is_valid_col_id
 from simulator import GameController, HumanAgent
 from connect_four import ConnectFour
 from localBaby import LocalBabyAgent
@@ -60,50 +60,67 @@ class AIAgent(object):
             return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
 
         if is_end(board):
-            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            if is_win(board):
+                return (float('inf'), None)
+            else:
+                return (0, None)
 
-        v = tuple([float('-inf'), AIAgent.MOVE_NONE])
+        v = float('-inf')
 
         generatedMoves = get_valid_col_id(board)
+        moveChosen = np.random.choice(generatedMoves)
+        # I think the problem is, if get_valid_col_id(board)
+        # has no valid vols, it generates a tuple of empty arrays
         print(generatedMoves)
 
+        # maybe some weird shit with player id
+
         for move in generatedMoves:
-            print("move" + str(move))
+            print("move max " + str(move))
             # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
-            next = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
-            if next[0] > v[0]:
-                v = tuple([next[0], move])
-            a = max(a, v[0])
-            if v[0] >= b:
-                return v
+            nextScore, _ = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
+            if nextScore > v:
+                v = nextScore
+                moveChosen = move
+            a = max(a, v)
+            if a >= b:
+                break
 
-        return v
+        return v, moveChosen
 
     def min_value(board, depth, max_depth, current_player, a, b):
         if depth >= max_depth:
-            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            return (AIAgent.evaluate(current_player, board), None)
 
         if is_end(board):
-            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            if is_win(board):
+                return (float('-inf'), None)
+            else:
+                return (0, None)
 
-        v = tuple([float('inf'), AIAgent.MOVE_NONE])
+        v = float('inf')
 
         generatedMoves = get_valid_col_id(board)
         print(generatedMoves)
 
+        moveChosen = np.random.choice(generatedMoves)
+
+        # maybe some weird shit with playerID
+
         for move in generatedMoves:
-            print("move" + str(move))
+            print("move min " + str(move))
             # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
-            next = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
-            if next[0] < v[0]:
-                v = tuple([next[0], move])
-            a = min(b, v[0])
-            if v[0] <= a:
-                return v
+            nextScore, _ = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
+            if nextScore < v:
+                v = nextScore
+                moveChosen = move
+            a = min(b, v)
+            if v <= a:
+                break
 
-        return v
+        return v, moveChosen
 
     # figure out how to trigger the right thing to start
     def minimax_alpha_beta(
