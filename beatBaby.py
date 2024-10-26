@@ -167,8 +167,8 @@ class AIAgent(object):
 
 
 agent1 = AIAgent(player_id=1)
-agent2 = LocalBabyAgent(player_id=2)
+agent2 = HumanAgent(2)
 
 board = ConnectFour()
-game = GameController(board=board, agents=[agent2, agent1])
+game = GameController(board=board, agents=[agent1, agent2])
 game.run()
