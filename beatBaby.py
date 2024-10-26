@@ -57,7 +57,7 @@ class AIAgent(object):
 
     def max_value(board, depth, max_depth, current_player, a, b):
         if depth >= max_depth:
-            return tuple([AIAgent.evaluate(current_player, board), AIAgent.MOVE_NONE])
+            return (AIAgent.evaluate(current_player, board), None)
 
         if is_end(board):
             if is_win(board):
@@ -71,12 +71,10 @@ class AIAgent(object):
         moveChosen = np.random.choice(generatedMoves)
         # I think the problem is, if get_valid_col_id(board)
         # has no valid vols, it generates a tuple of empty arrays
-        print(generatedMoves)
 
         # maybe some weird shit with player id
 
         for move in generatedMoves:
-            print("move max " + str(move))
             # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
             nextScore, _ = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
@@ -102,14 +100,12 @@ class AIAgent(object):
         v = float('inf')
 
         generatedMoves = get_valid_col_id(board)
-        print(generatedMoves)
 
         moveChosen = np.random.choice(generatedMoves)
 
         # maybe some weird shit with playerID
 
         for move in generatedMoves:
-            print("move min " + str(move))
             # ok valid question, can I use step here???
             nextBoard = step(board, move, current_player, False)
             nextScore, _ = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
@@ -131,9 +127,9 @@ class AIAgent(object):
         beta,
         current_player
     ):
-        v = AIAgent.max_value(board, depth, max_depth, current_player, alpha, beta)
+        v, move = AIAgent.max_value(board, depth, max_depth, current_player, alpha, beta)
 
-        return v
+        return move
 
     def __init__(self, player_id=1):
         """Initializes the agent with the specified player ID.
@@ -174,5 +170,5 @@ agent1 = AIAgent(player_id=1)
 agent2 = LocalBabyAgent(player_id=2)
 
 board = ConnectFour()
-game = GameController(board=board, agents=[agent1, agent2])
+game = GameController(board=board, agents=[agent2, agent1])
 game.run()
