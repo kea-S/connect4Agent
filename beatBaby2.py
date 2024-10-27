@@ -58,7 +58,7 @@ class AIAgent(object):
     ev
     """
 
-    def evaluate(self, piece, board):
+    def evaluate(piece, board):
         score = 0
         COLUMN_COUNT = 7
         ROW_COUNT = 6
@@ -122,129 +122,133 @@ class AIAgent(object):
 
         return score
 
-    # def max_value(board, depth, max_depth, current_player, a, b):
-    #     if depth >= max_depth:
-    #         return (AIAgent.evaluate(current_player, board), None)
-    #
-    #     if is_end(board):
-    #         if is_win(board):
-    #             return (float('inf'), None)
-    #
-    #     v = float('-inf')
-    #
-    #     generatedMoves = get_valid_col_id(board)
-    #     moveChosen = np.random.choice(generatedMoves)
-    #     # I think the problem is, if get_valid_col_id(board)
-    #     # has no valid vols, it generates a tuple of empty arrays
-    #
-    #     # maybe some weird shit with player id
-    #
-    #     for move in generatedMoves:
-    #         # ok valid question, can I use step here???
-    #         nextBoard = step(board, move, current_player, False)
-    #         nextScore, _ = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
-    #         if nextScore > v:
-    #             v = nextScore
-    #             moveChosen = move
-    #         a = max(a, v)
-    #         if a >= b:
-    #             break
-    #
-    #     return v, moveChosen
-    #
-    # def min_value(board, depth, max_depth, current_player, a, b):
-    #     if depth >= max_depth:
-    #         return (AIAgent.evaluate(current_player, board), None)
-    #
-    #     if is_end(board):
-    #         if is_win(board):
-    #             return (float('-inf'), None)
-    #
-    #     v = float('inf')
-    #
-    #     generatedMoves = get_valid_col_id(board)
-    #
-    #     moveChosen = np.random.choice(generatedMoves)
-    #
-    #     # maybe some weird shit with playerID
-    #
-    #     for move in generatedMoves:
-    #         # ok valid question, can I use step here???
-    #         nextBoard = step(board, move, current_player, False)
-    #         nextScore, _ = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
-    #         if nextScore < v:
-    #             v = nextScore
-    #             moveChosen = move
-    #         a = min(b, v)
-    #         if v <= a:
-    #             break
-    #
-    #     return v, moveChosen
-    #
-    # # figure out how to trigger the right thing to start
-    # def minimax_alpha_beta(
-    #     board,
-    #     depth,
-    #     max_depth,
-    #     alpha,
-    #     beta,
-    #     current_player
-    # ):
-    #     v, move = AIAgent.max_value(board, depth, max_depth, current_player, alpha, beta)
-    #
-    #     return move
+    def max_value(board, depth, max_depth, current_player, a, b):
+        if depth >= max_depth:
+            return (AIAgent.evaluate(current_player, board), None)
 
-    def minimax(self, board, depth, max_depth, alpha, beta, current_player):
-        valid_locations = get_valid_col_id(board)
+        if is_end(board):
+            if is_win(board):
+                return (float('inf'), None)
 
-        is_terminal = is_end(board)
-        if depth == 0 or is_terminal:
-            if is_terminal:
-                # Weight the bot winning really high
-                if is_win(board):
-                    if current_player == self.player_id:
-                        return (None, 9999999)
-                    else:
-                        return (None, -9999999)
-                else:  # No more valid moves
-                    return (None, 0)
-            # Return the bot's score
-            else:
-                return (None, AIAgent.evaluate(self.player_id, board))
+        v = float('-inf')
 
-        if current_player == self.player_id:  # maximizing player (bot)
-            value = -9999999
-            # Randomise column to start
-            column = np.random.choice(valid_locations)
-            for col in valid_locations:
-                nextBoard = step(board, col, current_player, False)
-                new_score = AIAgent.minimax(nextBoard, depth - 1, alpha, beta, 3-current_player)[1]
-                if new_score > value:
-                    value = new_score
-                    # Make 'column' the best scoring column we can get
-                    column = col
-                alpha = max(alpha, value)
-                if alpha >= beta:
-                    break
-            return column, value
+        generatedMoves = get_valid_col_id(board)
+        moveChosen = np.random.choice(generatedMoves)
+        # I think the problem is, if get_valid_col_id(board)
+        # has no valid vols, it generates a tuple of empty arrays
 
-        else:  # Minimising player
-            value = 9999999
-            # Randomise column to start
-            column = np.random.choice(valid_locations)
-            for col in valid_locations:
-                step(board, column, current_player, False)
-                new_score = AIAgent.minimax(nextBoard, depth - 1, alpha, beta, 3-current_player)[1]
-                if new_score < value:
-                    value = new_score
-                    # Make 'column' the best scoring column we can get
-                    column = col
-                beta = min(beta, value)
-                if alpha >= beta:
-                    break
-            return column, value
+        # maybe some weird shit with player id
 
-    def __init__(self, player_id=1):
+        for move in generatedMoves:
+            # ok valid question, can I use step here???
+            nextBoard = step(board, move, current_player, False)
+            nextScore, _ = AIAgent.min_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
+            if nextScore > v:
+                v = nextScore
+                moveChosen = move
+            a = max(a, v)
+            if a >= b:
+                break
+
+        return v, moveChosen
+
+    def min_value(board, depth, max_depth, current_player, a, b):
+        if depth >= max_depth:
+            return (AIAgent.evaluate(current_player, board), None)
+
+        if is_end(board):
+            if is_win(board):
+                return (float('-inf'), None)
+
+        v = float('inf')
+
+        generatedMoves = get_valid_col_id(board)
+
+        moveChosen = np.random.choice(generatedMoves)
+
+        # maybe some weird shit with playerID
+
+        for move in generatedMoves:
+            # ok valid question, can I use step here???
+            nextBoard = step(board, move, current_player, False)
+            nextScore, _ = AIAgent.max_value(nextBoard, depth + 1, max_depth, 3 - current_player, a, b)
+            if nextScore < v:
+                v = nextScore
+                moveChosen = move
+            a = min(b, v)
+            if v <= a:
+                break
+
+        return v, moveChosen
+
+    # figure out how to trigger the right thing to start
+    def minimax_alpha_beta(
+        board,
+        depth,
+        max_depth,
+        alpha,
+        beta,
+        current_player
+    ):
+        v, move = AIAgent.max_value(board, depth, max_depth, current_player, alpha, beta)
+
+        return move
+
+    # depthh = maxDepth
+    # def minimax(self, board, depth, alpha, beta, current_player):
+    #     valid_locations = get_valid_col_id(board)
+    #     print("im using stolen minimax!")
+    #
+    #     is_terminal = is_end(board)
+    #     if depth == 0 or is_terminal:
+    #         if is_terminal:
+    #             # Weight the bot winning really high
+    #             if is_win(board):
+    #                 if current_player == self.player_id:
+    #                     return (None, 9999999)
+    #                 else:
+    #                     return (None, -9999999)
+    #             else:  # No more valid moves
+    #                 return (None, 0)
+    #         # Return the bot's score
+    #         else:
+    #             return (None, AIAgent.evaluate(self.player_id, board))
+    #
+    #     print(current_player)
+    #     print(self.player_id)
+    #     if current_player == self.player_id:  # maximizing player (bot)
+    #         value = -9999999
+    #         # Randomise column to start
+    #         column = np.random.choice(valid_locations)
+    #         for col in valid_locations:
+    #             nextBoard = step(board, col, current_player, False)
+    #             new_score = self.minimax(nextBoard, depth - 1, alpha, beta, 3-current_player)[1]
+    #             if new_score > value:
+    #                 value = new_score
+    #                 # Make 'column' the best scoring column we can get
+    #                 column = col
+    #             alpha = max(alpha, value)
+    #             if alpha >= beta:
+    #                 break
+    #         return column, value
+    #
+    #     else:  # Minimising player
+    #         value = 9999999
+    #         # Randomise column to start
+    #         column = np.random.choice(valid_locations)
+    #         for col in valid_locations:
+    #             nextBoard = step(board, column, current_player, False)
+    #             new_score = self.minimax(nextBoard, depth - 1, alpha, beta, 3-current_player)[1]
+    #             if new_score < value:
+    #                 value = new_score
+    #                 # Make 'column' the best scoring column we can get
+    #                 column = col
+    #             beta = min(beta, value)
+    #             if alpha >= beta:
+    #                 break
+    #         return column, value
+
+    def __init__(self, player_id):
         """Initializes the agent with the specified player ID.
 
         Parameters:
@@ -277,8 +281,11 @@ class AIAgent(object):
             return
 
         # AIAgent.minimax_alpha_beta(state, 0, 3, float('-inf'), float('inf'), self.player_id)
+        # self.minimax(state, 3, float('-inf'), float('inf'), self.player_id)
 
         return AIAgent.minimax_alpha_beta(state, 0, 3, float('-inf'), float('inf'), self.player_id)
+
+
 
 agent1 = AIAgent(player_id=1)
 agent2 = LocalBabyAgent(player_id=2)

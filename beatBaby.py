@@ -202,6 +202,7 @@ class AIAgent(object):
         tuple
             A tuple containing the best score and the best column index for the move.
         """
+        print("minimax in beatBaby being used")
         valid_columns = get_valid_col_id(state)
         is_terminal = is_end(state)
         if depth == 0 or is_terminal:
