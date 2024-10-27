@@ -58,7 +58,7 @@ class AIAgent(object):
     ev
     """
 
-    def evaluate(self, piece, board):
+    def evaluate(piece, board):
         score = 0
         COLUMN_COUNT = 7
         ROW_COUNT = 6
@@ -101,7 +101,7 @@ class AIAgent(object):
 
         # the returning -score works in my head after thinging abt it for 3 mins
         # might be fucking weird tho
-        return score if self.player_id == piece else -score
+        return score
 
     def evaluate_window(window, piece):
         score = 0
@@ -279,7 +279,11 @@ class AIAgent(object):
                 else:  # Game is over, no more valid moves
                     return (0, None)
             else:  # Depth is zero
-                return (AIAgent.evaluate(player_id, state), None)
+                if maximizing_player:
+                    return (AIAgent.evaluate(player_id, state), None)
+                else:
+                    return (-AIAgent.evaluate(player_id, state), None)
+
         if maximizing_player:
             value = float('-inf')
             # could it be some weird shit with random choice?
