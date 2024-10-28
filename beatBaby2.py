@@ -25,7 +25,7 @@ class AIAgent(object):
         # Score centre column, theoretically best first play
         centre_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
         centre_count = centre_array.count(piece)
-        score += centre_count * 3
+        score += centre_count * 100
 
         # Score horizontal positions
         for r in range(ROW_COUNT):
@@ -78,7 +78,7 @@ class AIAgent(object):
         # Prioritise a winning move
         # Minimax makes this less important
         if window.count(piece) == 4:
-            score += 100000
+            score += 1000000
         # Make connecting 3 second priority
         elif window.count(piece) == 3 and window.count(EMPTY) == 1:
             score += 100
@@ -87,7 +87,7 @@ class AIAgent(object):
             score += 1
         # Minimax makes this less important
         if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-            score -= 100000
+            score -= 10000
 
         return score
 
@@ -101,14 +101,14 @@ class AIAgent(object):
             if is_terminal:
                 # Weight the bot winning really high
                 if is_win(board):
-                    return (None, float('inf') if maximizing_player else float('-inf'))
+                    return (None, 100000 if maximizing_player else -100000)
                 else:  # No more valid moves
                     return (None, 0)
             else:
                 return (None, AIAgent.evaluate(current_player, board))
 
         if maximizing_player:
-            value = float('-inf')
+            value = -100000
             # Randomise column to start
             column = np.random.choice(valid_locations)
             for col in valid_locations:
@@ -126,7 +126,7 @@ class AIAgent(object):
             return column, value
 
         else:  # Minimising player
-            value = float('inf')
+            value = 100000
             # Randomise column to start
             column = np.random.choice(valid_locations)
             for col in valid_locations:
