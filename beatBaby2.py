@@ -2,6 +2,7 @@ from game_utils import initialize, step, get_valid_col_id, is_end, is_win, is_va
 from simulator import GameController, HumanAgent
 from connect_four import ConnectFour
 from localBaby import LocalBabyAgent
+from evaluationFunctions import evaluate
 import numpy as np
 
 # Task 2.1: Defeat the Baby Agent
@@ -16,99 +17,22 @@ class AIAgent(object):
     ev
     """
 
-    def evaluate(piece, board):
-        score = 0
-        COLUMN_COUNT = 7
-        ROW_COUNT = 6
-        WINDOW_LENGTH = 4
-
-        # Score centre column, theoretically best first play
-        centre_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
-        centre_count = centre_array.count(piece)
-        score += centre_count * 100
-
-        # Score horizontal positions
-        for r in range(ROW_COUNT):
-            row_array = [int(i) for i in list(board[r, :])]
-            for c in range(COLUMN_COUNT - 3):
-                # Create a horizontal window of 4
-                window = row_array[c:c + WINDOW_LENGTH]
-                score += AIAgent.evaluate_window(window, piece)
-
-        # Score vertical positions
-        for c in range(COLUMN_COUNT):
-            col_array = [int(i) for i in list(board[:, c])]
-            for r in range(ROW_COUNT - 3):
-                # Create a vertical window of 4
-                window = col_array[r:r + WINDOW_LENGTH]
-                score += AIAgent.evaluate_window(window, piece)
-
-        # Score positive diagonals
-        for r in range(ROW_COUNT - 3):
-            for c in range(COLUMN_COUNT - 3):
-                # Create a positive diagonal window of 4
-                window = [board[r + i][c + i] for i in range(WINDOW_LENGTH)]
-                score += AIAgent.evaluate_window(window, piece)
-
-        # Score negative diagonals
-        for r in range(ROW_COUNT - 3):
-            for c in range(COLUMN_COUNT - 3):
-                # Create a negative diagonal window of 4
-                window = [board[r + 3 - i][c + i] for i in range(WINDOW_LENGTH)]
-                score += AIAgent.evaluate_window(window, piece)
-
-        # the returning -score works in my head after thinging abt it for 3 mins
-        # might be fucking weird tho
-
-        # ok its not switching pieces correctly
-        print("piece:")
-        print(piece)
-
-        print("score:")
-        print(score)
-
-        return score
-
-    def evaluate_window(window, piece):
-        score = 0
-        EMPTY = 0
-        # Switch scoring based on turn
-        opp_piece = 3 - piece
-
-        # Prioritise a winning move
-        # Minimax makes this less important
-        if window.count(piece) == 4:
-            score += 1000000
-        # Make connecting 3 second priority
-        elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-            score += 100
-        # Make connecting 2 third priority
-        elif window.count(piece) == 2 and window.count(EMPTY) == 2:
-            score += 1
-        # Minimax makes this less important
-        if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-            score -= 10000
-
-        return score
-
     # depthh = maxDepth
     def minimax(board, depth, alpha, beta, maximizing_player, current_player):
-        print("current player")
-        print(current_player)
         valid_locations = get_valid_col_id(board)
         is_terminal = is_end(board)
         if depth == 0 or is_terminal:
             if is_terminal:
                 # Weight the bot winning really high
                 if is_win(board):
-                    return (None, 100000 if maximizing_player else -100000)
-                else:  # No more valid moves
+                    return (None, 1000000 if maximizing_player else -100000)
+                else:
                     return (None, 0)
             else:
-                return (None, AIAgent.evaluate(current_player, board))
+                return (None, evaluate(current_player, board))
 
         if maximizing_player:
-            value = -100000
+            value = float('-inf')
             # Randomise column to start
             column = np.random.choice(valid_locations)
             for col in valid_locations:
@@ -120,13 +44,12 @@ class AIAgent(object):
                     column = col
                 alpha = max(alpha, value)
                 if value >= beta:
-                    print("pruned")
-                    return column, value
+                    break
 
             return column, value
 
         else:  # Minimising player
-            value = 100000
+            value = float('inf')
             # Randomise column to start
             column = np.random.choice(valid_locations)
             for col in valid_locations:
@@ -138,8 +61,7 @@ class AIAgent(object):
                     column = col
                 beta = min(beta, value)
                 if value <= alpha:
-                    print("pruned")
-                    return column, value
+                    break
 
             return column, value
 
@@ -179,7 +101,7 @@ class AIAgent(object):
         # self.minimax(state, 3, float('-inf'), float('inf'), self.player_id)
         # AIAgent.get_best_move(state, self.player_id, 3)
 
-        move, _ = AIAgent.minimax(state, 3, float('-inf'), float('inf'), True, self.player_id)
+        move, _ = AIAgent.minimax(state, 4, float('-inf'), float('inf'), True, self.player_id)
 
         return move
 
