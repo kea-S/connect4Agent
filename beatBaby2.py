@@ -20,12 +20,16 @@ class AIAgent(object):
     # depthh = maxDepth
     def minimax(board, depth, alpha, beta, maximizing_player, current_player):
         valid_locations = get_valid_col_id(board)
-        is_terminal = is_end(board)
+        is_terminal = is_end(board) or is_win(board)
         if depth == 0 or is_terminal:
             if is_terminal:
                 # Weight the bot winning really high
                 if is_win(board):
-                    return (None, 1000000 if maximizing_player else -100000)
+                    print("win board")
+                    print(board)
+                    print("win reached by:")
+                    print(maximizing_player)
+                    return (None, 1000000 if not maximizing_player else -100000)
                 else:
                     return (None, 0)
             else:
