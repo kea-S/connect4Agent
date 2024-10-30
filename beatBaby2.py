@@ -32,24 +32,24 @@ class AIAgent(object):
             # Prioritise a winning move
             # Make connecting 3 second priority
             if window.count(piece) == 4:
-                score = 100
+                score = 1000
             elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-                score += 5
+                score += 10
             # Make connecting 2 third priority
             elif window.count(piece) == 2 and window.count(EMPTY) == 2:
-                score += 2
+                score += 3
 
             if window.count(opp_piece) == 4:
-                score = -100
+                score = -1000
             elif window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-                score -= 4
+                score -= 8
 
             return score
 
-        # Score centre column, theoretically best first play
+        # Score centre column, theoretically best first few plays
         centre_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
         centre_count = centre_array.count(piece)
-        score += centre_count * 4
+        score += centre_count * 3
 
         # Score horizontal positions
         for r in range(ROW_COUNT):
@@ -173,8 +173,8 @@ class AIAgent(object):
         return move
 
 
-agent1 = LocalBabyAgent(player_id=1)
-agent2 = AIAgent(player_id=2)
+agent1 = AIAgent(player_id=1)
+agent2 = LocalBabyAgent(player_id=2)
 
 board = ConnectFour()
 game = GameController(board=board, agents=[agent1, agent2])
