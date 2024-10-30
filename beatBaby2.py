@@ -2,7 +2,6 @@ from game_utils import initialize, step, get_valid_col_id, is_end, is_win, is_va
 from simulator import GameController, HumanAgent
 from connect_four import ConnectFour
 from localBaby import LocalBabyAgent
-from evaluationFunctions import evaluate
 import numpy as np
 
 # Task 2.1: Defeat the Baby Agent
@@ -17,23 +16,87 @@ class AIAgent(object):
     ev
     """
 
+    def evaluate(self, board):
+        score = 0
+        COLUMN_COUNT = 7
+        ROW_COUNT = 6
+        WINDOW_LENGTH = 4
+        piece = self.player_id
+
+        def evaluate_window(window, piece):
+            score = 0
+            EMPTY = 0
+            # Switch scoring based on turn
+            opp_piece = 3 - piece
+
+            # Prioritise a winning move
+            # Make connecting 3 second priority
+            if window.count(piece) == 4:
+                score = 100
+            elif window.count(piece) == 3 and window.count(EMPTY) == 1:
+                score += 5
+            # Make connecting 2 third priority
+            elif window.count(piece) == 2 and window.count(EMPTY) == 2:
+                score += 2
+
+            if window.count(opp_piece) == 4:
+                score = -100
+            elif window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
+                score -= 4
+
+            return score
+
+        # Score centre column, theoretically best first play
+        centre_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
+        centre_count = centre_array.count(piece)
+        score += centre_count * 4
+
+        # Score horizontal positions
+        for r in range(ROW_COUNT):
+            row_array = [int(i) for i in list(board[r, :])]
+            for c in range(COLUMN_COUNT - 3):
+                # Create a horizontal window of 4
+                window = row_array[c:c + WINDOW_LENGTH]
+                score += evaluate_window(window, piece)
+
+        # Score vertical positions
+        for c in range(COLUMN_COUNT):
+            col_array = [int(i) for i in list(board[:, c])]
+            for r in range(ROW_COUNT - 3):
+                # Create a vertical window of 4
+                window = col_array[r:r + WINDOW_LENGTH]
+                score += evaluate_window(window, piece)
+
+        # Score positive diagonals
+        for r in range(ROW_COUNT - 3):
+            for c in range(COLUMN_COUNT - 3):
+                # Create a positive diagonal window of 4
+                window = [board[r + i][c + i] for i in range(WINDOW_LENGTH)]
+                score += evaluate_window(window, piece)
+
+        # Score negative diagonals
+        for r in range(ROW_COUNT - 3):
+            for c in range(COLUMN_COUNT - 3):
+                # Create a negative diagonal window of 4
+                window = [board[r + 3 - i][c + i] for i in range(WINDOW_LENGTH)]
+                score += evaluate_window(window, piece)
+
+        # the returning -score works in my head after thinging abt it for 3 mins
+        # might be fucking weird tho
+
+        # ok its not switching pieces correctly
+
+        return score
+
     # depthh = maxDepth
-    def minimax(board, depth, alpha, beta, maximizing_player, current_player):
+    def minimax(self, board, depth, alpha, beta, maximizing_player, current_player):
         valid_locations = get_valid_col_id(board)
         is_terminal = is_end(board) or is_win(board)
         if depth == 0 or is_terminal:
-            if is_terminal:
-                # Weight the bot winning really high
-                if is_win(board):
-                    print("win board")
-                    print(board)
-                    print("win reached by:")
-                    print(maximizing_player)
-                    return (None, 1000000 if not maximizing_player else -100000)
-                else:
-                    return (None, 0)
-            else:
-                return (None, evaluate(current_player, board))
+            if not is_win(board):
+                return (None, 0)
+
+            return (None, self.evaluate(board))
 
         if maximizing_player:
             value = float('-inf')
@@ -41,7 +104,7 @@ class AIAgent(object):
             column = np.random.choice(valid_locations)
             for col in valid_locations:
                 nextBoard = step(board, col, current_player, False)
-                new_score = AIAgent.minimax(nextBoard, depth - 1, alpha, beta, False, 3 - current_player)[1]
+                new_score = self.minimax(nextBoard, depth - 1, alpha, beta, False, 3 - current_player)[1]
                 if new_score > value:
                     value = new_score
                     # Make 'column' the best scoring column we can get
@@ -58,7 +121,7 @@ class AIAgent(object):
             column = np.random.choice(valid_locations)
             for col in valid_locations:
                 nextBoard = step(board, column, current_player, False)
-                new_score = AIAgent.minimax(nextBoard, depth - 1, alpha, beta, True, 3-current_player)[1]
+                new_score = self.minimax(nextBoard, depth - 1, alpha, beta, True, 3-current_player)[1]
                 if new_score < value:
                     value = new_score
                     # Make 'column' the best scoring column we can get
@@ -105,13 +168,13 @@ class AIAgent(object):
         # self.minimax(state, 3, float('-inf'), float('inf'), self.player_id)
         # AIAgent.get_best_move(state, self.player_id, 3)
 
-        move, _ = AIAgent.minimax(state, 4, float('-inf'), float('inf'), True, self.player_id)
+        move, _ = self.minimax(state, 4, float('-inf'), float('inf'), True, self.player_id)
 
         return move
 
 
-agent1 = AIAgent(player_id=1)
-agent2 = LocalBabyAgent(player_id=2)
+agent1 = LocalBabyAgent(player_id=1)
+agent2 = AIAgent(player_id=2)
 
 board = ConnectFour()
 game = GameController(board=board, agents=[agent1, agent2])

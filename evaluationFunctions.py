@@ -60,13 +60,15 @@ def evaluate(piece, board):
         # Prioritise a winning move
         # Make connecting 3 second priority
         if window.count(piece) == 4:
-            score += 100
+            score = 100
         elif window.count(piece) == 3 and window.count(EMPTY) == 1:
             score += 5
         # Make connecting 2 third priority
         elif window.count(piece) == 2 and window.count(EMPTY) == 2:
             score += 2
 
+        if window.count(opp_piece) == 4:
+            score = -100
         elif window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
             score -= 4
 
