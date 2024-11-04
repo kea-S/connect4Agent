@@ -16,12 +16,41 @@ class AIAgent(object):
     ev
     """
 
+    def winning_move(board, piece):
+        # Check horizontal locations for win
+        COLUMN_COUNT = 7
+        ROW_COUNT = 6
+
+        for c in range(COLUMN_COUNT-3):
+            for r in range(ROW_COUNT):
+                if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
+                    return True
+
+        # Check vertical locations for win
+        for c in range(COLUMN_COUNT):
+            for r in range(ROW_COUNT-3):
+                if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
+                    return True
+
+        # Check positively sloped diaganols
+        for c in range(COLUMN_COUNT-3):
+            for r in range(ROW_COUNT-3):
+                if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
+                    return True
+
+        # Check negatively sloped diaganols
+        for c in range(COLUMN_COUNT-3):
+            for r in range(3, ROW_COUNT):
+                if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
+                    return True
+
     def evaluate(self, board):
         score = 0
         COLUMN_COUNT = 7
         ROW_COUNT = 6
         WINDOW_LENGTH = 4
         piece = self.player_id
+        opp_piece = 3 - piece
 
         def evaluate_window(window, piece):
             score = 0
@@ -32,17 +61,15 @@ class AIAgent(object):
             # Prioritise a winning move
             # Make connecting 3 second priority
             if window.count(piece) == 4:
-                score = 1000
+                score += 100
             elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-                score += 10
+                score += 5
             # Make connecting 2 third priority
             elif window.count(piece) == 2 and window.count(EMPTY) == 2:
-                score += 3
+                score += 2
 
-            if window.count(opp_piece) == 4:
-                score = -1000
-            elif window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-                score -= 8
+            if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
+                score -= 4
 
             return score
 
@@ -93,8 +120,13 @@ class AIAgent(object):
         valid_locations = get_valid_col_id(board)
         is_terminal = is_end(board) or is_win(board)
         if depth == 0 or is_terminal:
-            if not is_win(board):
-                return (None, 0)
+            if is_terminal:
+                if AIAgent.winning_move(board, self.player_id):
+                    return (None, 100000000000000)
+                elif AIAgent.winning_move(board, 3 - self.player_id):
+                    return (None, -10000000000000)
+                else:
+                    return (None, 0)
 
             return (None, self.evaluate(board))
 
@@ -110,7 +142,7 @@ class AIAgent(object):
                     # Make 'column' the best scoring column we can get
                     column = col
                 alpha = max(alpha, value)
-                if value >= beta:
+                if alpha >= beta:
                     break
 
             return column, value
@@ -121,13 +153,13 @@ class AIAgent(object):
             column = np.random.choice(valid_locations)
             for col in valid_locations:
                 nextBoard = step(board, column, current_player, False)
-                new_score = self.minimax(nextBoard, depth - 1, alpha, beta, True, 3-current_player)[1]
+                new_score = self.minimax(nextBoard, depth - 1, alpha, beta, True, 3 - current_player)[1]
                 if new_score < value:
                     value = new_score
                     # Make 'column' the best scoring column we can get
                     column = col
                 beta = min(beta, value)
-                if value <= alpha:
+                if beta <= alpha:
                     break
 
             return column, value
@@ -168,7 +200,7 @@ class AIAgent(object):
         # self.minimax(state, 3, float('-inf'), float('inf'), self.player_id)
         # AIAgent.get_best_move(state, self.player_id, 3)
 
-        move, _ = self.minimax(state, 4, float('-inf'), float('inf'), True, self.player_id)
+        move, _ = self.minimax(state, 3, float('-inf'), float('inf'), True, self.player_id)
 
         return move
 
