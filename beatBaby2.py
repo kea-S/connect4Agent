@@ -200,7 +200,7 @@ class AIAgent(object):
         # self.minimax(state, 3, float('-inf'), float('inf'), self.player_id)
         # AIAgent.get_best_move(state, self.player_id, 3)
 
-        move, _ = self.minimax(state, 3, float('-inf'), float('inf'), True, self.player_id)
+        move, _ = self.minimax(state, 2, float('-inf'), float('inf'), True, self.player_id)
 
         return move
 
