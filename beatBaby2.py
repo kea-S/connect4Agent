@@ -142,7 +142,7 @@ class AIAgent(object):
                     # Make 'column' the best scoring column we can get
                     column = col
                 alpha = max(alpha, value)
-                if alpha >= beta:
+                if value >= beta:
                     break
 
             return column, value
@@ -159,7 +159,7 @@ class AIAgent(object):
                     # Make 'column' the best scoring column we can get
                     column = col
                 beta = min(beta, value)
-                if beta <= alpha:
+                if value <= alpha:
                     break
 
             return column, value
