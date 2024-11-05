@@ -1,5 +1,6 @@
 from game_utils import initialize, step, get_valid_col_id, is_end, is_win, is_valid_col_id
 import numpy as np
+import math
 
 # Task 2.1: Defeat the Baby Agent
 
@@ -151,14 +152,14 @@ class AIAgent(object):
                     if winning_move(board, PLAYER_ID):
                         return (None, 100000000000000)
                     elif winning_move(board, OPP_PIECE):
-                        return (None, -10000000000000)
+                        return (None, -100000000000000)
                     else:
                         return (None, 0)
 
                 return (None, evaluate(board))
 
             if maximizing_player:
-                value = float('-inf')
+                value = -math.inf
                 # Randomise column to start
                 column = np.random.choice(valid_locations)
                 for col in valid_locations:
@@ -169,14 +170,13 @@ class AIAgent(object):
                         # Make 'column' the best scoring column we can get
                         column = col
                     alpha = max(alpha, value)
-                    if value >= beta:
-                        print("pruned")
+                    if alpha >= beta:
                         break
 
                 return column, value
 
             else:  # Minimising player
-                value = float('inf')
+                value = math.inf
                 # Randomise column to start
                 column = np.random.choice(valid_locations)
                 for col in valid_locations:
@@ -187,12 +187,11 @@ class AIAgent(object):
                         # Make 'column' the best scoring column we can get
                         column = col
                     beta = min(beta, value)
-                    if value <= alpha:
-                        print("pruned")
+                    if beta <= alpha:
                         break
 
                 return column, value
 
-        move, _ = minimax(state, 3, float('-inf'), float('inf'), True, PLAYER_ID)
+        move, _ = minimax(state, 3, -math.inf, math.inf, True, PLAYER_ID)
 
         return move
