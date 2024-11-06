@@ -4,8 +4,8 @@ from connect_four import ConnectFour
 from localBaby import LocalBabyAgent
 from submission import AIAgent
 
-agent1 = AIAgent(player_id=1)
-agent2 = LocalBabyAgent(player_id=2)
+agent1 = LocalBabyAgent(player_id=1)
+agent2 = AIAgent(player_id=2)
 
 board = ConnectFour()
 game = GameController(board=board, agents=[agent1, agent2])

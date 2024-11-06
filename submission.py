@@ -90,7 +90,7 @@ class AIAgent(object):
                 # Make connecting 3 second priority
                 if window.count(PLAYER_ID) == 4:
                     score += 100
-                elif window.count(PLAYER_ID) == 3 and window.count(EMPTY) == 1:
+                elif window.count(PLAYER_ID == 3 and window.count(EMPTY)) == 1:
                     score += 5
                 # Make connecting 2 third priority
                 elif window.count(PLAYER_ID) == 2 and window.count(EMPTY) == 2:
