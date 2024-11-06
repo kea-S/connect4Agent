@@ -146,13 +146,13 @@ class AIAgent(object):
         # depthh = maxDepth
         def minimax(board, depth, alpha, beta, maximizing_player, current_player):
             valid_locations = get_valid_col_id(board)
-            is_terminal = is_end(board) or is_win(board)
+            is_terminal = is_end(board)
             if depth == 0 or is_terminal:
                 if is_terminal:
                     if winning_move(board, PLAYER_ID):
                         return (None, 100000000000000)
                     elif winning_move(board, OPP_PIECE):
-                        return (None, -100000000000000)
+                        return (None, -10000000000000)
                     else:
                         return (None, 0)
 
