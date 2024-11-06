@@ -1,6 +1,6 @@
 from game_utils import initialize, step, get_valid_col_id, is_end, is_win, is_valid_col_id
-import numpy as np
 import math
+import random
 
 # Task 2.1: Defeat the Baby Agent
 
@@ -161,7 +161,7 @@ class AIAgent(object):
             if maximizing_player:
                 value = -math.inf
                 # Randomise column to start
-                column = np.random.choice(valid_locations)
+                column = random.choice(valid_locations)
                 for col in valid_locations:
                     nextBoard = step(board, col, current_player, False)
                     new_score = minimax(nextBoard, depth - 1, alpha, beta, False, 3 - current_player)[1]
@@ -178,7 +178,7 @@ class AIAgent(object):
             else:  # Minimising player
                 value = math.inf
                 # Randomise column to start
-                column = np.random.choice(valid_locations)
+                column = random.choice(valid_locations)
                 for col in valid_locations:
                     nextBoard = step(board, column, current_player, False)
                     new_score = minimax(nextBoard, depth - 1, alpha, beta, True, 3 - current_player)[1]
