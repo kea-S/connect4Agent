@@ -3,9 +3,6 @@ import math
 import random
 
 
-random.seed(1)
-
-
 class AIAgent(object):
     """
     A class representing an agent that plays Connect Four.
