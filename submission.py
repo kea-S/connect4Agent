@@ -2,7 +2,9 @@ from game_utils import initialize, step, get_valid_col_id, is_end, is_win, is_va
 import math
 import random
 
-# Task 2.1: Defeat the Baby Agent
+
+random.seed(1)
+
 
 class AIAgent(object):
     """
@@ -58,42 +60,33 @@ class AIAgent(object):
             # Check horizontal locations for win
             for c in range(COLUMN_COUNT-3):
                 for r in range(ROW_COUNT):
-                    if board[r][c] == player and board[r][c+1] == player and board[r][c+2] == player and board[r][c+3] == player:
+                    if board[r][c] == player and board[r][c+1] == player and \
+                            board[r][c+2] == player and board[r][c+3] == player:
                         return True
 
             # Check vertical locations for win
             for c in range(COLUMN_COUNT):
                 for r in range(ROW_COUNT-3):
-                    if board[r][c] == player and board[r+1][c] == player and board[r+2][c] == player and board[r+3][c] == player:
+                    if board[r][c] == player and board[r+1][c] == player and \
+                            board[r+2][c] == player and board[r+3][c] == player:
                         return True
 
             # Check positively sloped diaganols
             for c in range(COLUMN_COUNT-3):
                 for r in range(ROW_COUNT-3):
-                    if board[r][c] == player and board[r+1][c+1] == player and board[r+2][c+2] == player and board[r+3][c+3] == player:
+                    if board[r][c] == player and board[r+1][c+1] == \
+                            player and board[r+2][c+2] == player and board[r+3][c+3] == player:
                         return True
 
             # Check negatively sloped diaganols
             for c in range(COLUMN_COUNT-3):
                 for r in range(3, ROW_COUNT):
-                    if board[r][c] == player and board[r-1][c+1] == player and board[r-2][c+2] == player and board[r-3][c+3] == player:
+                    if board[r][c] == player and board[r-1][c+1] == \
+                            player and board[r-2][c+2] == player and board[r-3][c+3] == player:
                         return True
 
         def evaluate(board):
             score = 0
-
-            # print("this piece is:")
-            # print(PLAYER_ID)
-            # print("this OPP_PIECE is:")
-            # print(OPP_PIECE)
-            # print("this COLUMN_COUNT is:")
-            # print(COLUMN_COUNT)
-            # print("this ROW_COUNT is:")
-            # print(ROW_COUNT)
-            # print("this WINDOW_LENGTH is:")
-            # print(WINDOW_LENGTH)
-            # print("this EMPTY is:")
-            # print(EMPTY)
 
             def evaluate_window(window):
                 score = 0
@@ -157,15 +150,15 @@ class AIAgent(object):
             return score
 
         # depthh = maxDepth
-        def minimax(board, depth, alpha, beta, maximizing_player, current_player):
+        def minimax(board, depth, alpha, beta, maximizing_player):
             valid_locations = get_valid_col_id(board)
             is_terminal = is_end(board)
             if depth == 0 or is_terminal:
                 if is_terminal:
                     if winning_move(board, PLAYER_ID):
-                        return (None, math.inf)
+                        return (None, 100000000000000)
                     elif winning_move(board, OPP_PIECE):
-                        return (None, -math.inf)
+                        return (None, -10000000000000)
                     else:
                         return (None, 0)
 
@@ -176,8 +169,8 @@ class AIAgent(object):
                 # Randomise column to start
                 column = random.choice(valid_locations)
                 for col in valid_locations:
-                    nextBoard = step(board, col, current_player, False)
-                    new_score = minimax(nextBoard, depth - 1, alpha, beta, False, 3 - current_player)[1]
+                    nextBoard = step(board, col, PLAYER_ID, False)
+                    new_score = minimax(nextBoard, depth - 1, alpha, beta, False)[1]
                     if new_score > value:
                         value = new_score
                         # Make 'column' the best scoring column we can get
@@ -193,8 +186,8 @@ class AIAgent(object):
                 # Randomise column to start
                 column = random.choice(valid_locations)
                 for col in valid_locations:
-                    nextBoard = step(board, column, current_player, False)
-                    new_score = minimax(nextBoard, depth - 1, alpha, beta, True, 3 - current_player)[1]
+                    nextBoard = step(board, col, OPP_PIECE, False)
+                    new_score = minimax(nextBoard, depth - 1, alpha, beta, True)[1]
                     if new_score < value:
                         value = new_score
                         # Make 'column' the best scoring column we can get
@@ -205,6 +198,6 @@ class AIAgent(object):
 
                 return column, value
 
-        move, _ = minimax(state, 3, -math.inf, math.inf, True, PLAYER_ID)
+        move, _ = minimax(state, 3, -math.inf, math.inf, True)
 
         return move
