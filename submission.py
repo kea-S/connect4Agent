@@ -82,6 +82,19 @@ class AIAgent(object):
         def evaluate(board):
             score = 0
 
+            # print("this piece is:")
+            # print(PLAYER_ID)
+            # print("this OPP_PIECE is:")
+            # print(OPP_PIECE)
+            # print("this COLUMN_COUNT is:")
+            # print(COLUMN_COUNT)
+            # print("this ROW_COUNT is:")
+            # print(ROW_COUNT)
+            # print("this WINDOW_LENGTH is:")
+            # print(WINDOW_LENGTH)
+            # print("this EMPTY is:")
+            # print(EMPTY)
+
             def evaluate_window(window):
                 score = 0
                 # Switch scoring based on turn
@@ -90,7 +103,7 @@ class AIAgent(object):
                 # Make connecting 3 second priority
                 if window.count(PLAYER_ID) == 4:
                     score += 100
-                elif window.count(PLAYER_ID == 3 and window.count(EMPTY)) == 1:
+                elif window.count(PLAYER_ID) == 3 and window.count(EMPTY) == 1:
                     score += 5
                 # Make connecting 2 third priority
                 elif window.count(PLAYER_ID) == 2 and window.count(EMPTY) == 2:
@@ -150,9 +163,9 @@ class AIAgent(object):
             if depth == 0 or is_terminal:
                 if is_terminal:
                     if winning_move(board, PLAYER_ID):
-                        return (None, 100000000000000)
+                        return (None, math.inf)
                     elif winning_move(board, OPP_PIECE):
-                        return (None, -10000000000000)
+                        return (None, -math.inf)
                     else:
                         return (None, 0)
 
